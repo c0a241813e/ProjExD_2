@@ -32,29 +32,52 @@ def check_bound(rct: pg.Rect) -> tuple[bool,bool]:
 
 
 def gameover(screen: pg.Surface) -> None:
+    """
+    引数：screen
+    爆弾着弾時ゲームオーバー画面
+    """
     go_img = pg.Surface((WIDTH,HEIGHT))
     pg.draw.rect(go_img,(0,0,0) ,(0,0,WIDTH,HEIGHT))
-
     go_img.set_alpha(200)
-
     fonto = pg.font.Font(None,100)
     txt = fonto.render("Game Over",True,(255,255,255))
     txt_rct = txt.get_rect(center = (WIDTH//2,HEIGHT//2))
     go_img.blit(txt,txt_rct)
-
     img = pg.image.load("fig/8.png")
     go_img.blit(img,[295,295])
     go_img.blit(img,[765,295])
-
     screen.blit(go_img,[0,0])
-
     pg.display.update()
     time.sleep(5)
 
 
+def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+
+    bb_imgs = []
+    bb_accs = [a for a in range(1, 11)]
+
+    for r in range(1,11):
+        bb_img = pg.Surface((20*r,20*r))
+        pg.draw.circle(bb_img, (255,0,0),(10*r,10*r),10*r)
+        bb_img.set_colorkey((0,0,0))
+        bb_imgs.append(bb_img)
+        bb_accs.append(r)
+
+    return bb_imgs,bb_accs
 
 
+def get_kk_imgs() -> dict[tuple[int,int],pg.Surface]:
 
+    kk_dict = {
+        (0 ,0):pg.transform.rotozoom(pg.image.load("fig/3.png"),0,1.0),
+        (+5 ,0):pg.transform.rotozoom(,-90,1.0),
+        (+5 ,-5):pg.transform.rotozoom(,-45,1.0),
+        (0,-5):pg.transform.rotozoom(,0,1),
+        (-5,-5):pg.transform.rotozoom(,45,1.0),
+        (-5,0):pg.transform.rotozoom(,90,1.0),
+        (-5,+5):pg.transform.rotozoom(135,1.0),
+        (0,+5):pg.transform.rotozoom(180,1.0),
+    }
 
 
 
@@ -74,6 +97,8 @@ def main():
 
     clock = pg.time.Clock()
     tmr = 0
+
+    bb_imags,bb_accs = init_bb_imgs()
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
@@ -84,11 +109,19 @@ def main():
             return
         screen.blit(bg_img, [0, 0]) 
 
+        idx = min(tmr//500,9)
+        avx = vx*bb_accs[idx]
+        avy = vy*bb_accs[idx]
+        bb_img = bb_imags[idx]
+        bb_rct.width = bb_img.get_rect().width
+        bb_rct.height = bb_img.get_rect().height
+        bb_rct.move_ip(avx,avy)
+
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
         # if key_lst[pg.K_UP]:
         #     sum_mv[1] -= 5
-        # if key_lst[pg.K_DOWN]:
+        #      # if key_lst[pg.K_DOWN]:
         #     sum_mv[1] += 5
         # if key_lst[pg.K_LEFT]:
         #     sum_mv[0] -= 5
