@@ -4,6 +4,12 @@ import pygame as pg
 
 
 WIDTH, HEIGHT = 1100, 650
+DELTA = {
+    pg.k_up: (0, -5),
+    pg.k_DOWN: (0, +5),
+    pg.k_LEFT: (-5,0),
+    pg.k_RIGHT: (0,+5),
+}
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
