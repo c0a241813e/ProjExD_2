@@ -5,7 +5,6 @@ import time
 import pygame as pg
 
 
-
 WIDTH, HEIGHT = 1100, 650
 DELTA = {
     pg.K_UP : (0, -5),
@@ -43,7 +42,7 @@ def gameover(screen: pg.Surface) -> None:
     txt = fonto.render("Game Over",True,(255,255,255))
     txt_rct = txt.get_rect(center = (WIDTH//2,HEIGHT//2))
     go_img.blit(txt,txt_rct)
-    img = pg.image.load("fig/8.png")
+    img = pg.image.load("fig/8.png") #
     go_img.blit(img,[295,295])
     go_img.blit(img,[765,295])
     screen.blit(go_img,[0,0])
@@ -52,6 +51,11 @@ def gameover(screen: pg.Surface) -> None:
 
 
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    """
+    10段階の爆弾の大きさと加速度のリストを作成して返す
+    bb_imags Surfaceのリスト
+    bb_accs  倍率のリスト
+    """
 
     bb_imgs = []
     bb_accs = [a for a in range(1, 11)]
@@ -68,16 +72,24 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
 
 def get_kk_imgs() -> dict[tuple[int,int],pg.Surface]:
 
+    """
+    こうかとんの移動方向に応じた画像辞書を返す
+
+    """
+
     kk_dict = {
-        (0 ,0):pg.transform.rotozoom(pg.image.load("fig/3.png"),0,1.0),
-        (+5 ,0):pg.transform.rotozoom(,-90,1.0),
-        (+5 ,-5):pg.transform.rotozoom(,-45,1.0),
-        (0,-5):pg.transform.rotozoom(,0,1),
-        (-5,-5):pg.transform.rotozoom(,45,1.0),
-        (-5,0):pg.transform.rotozoom(,90,1.0),
-        (-5,+5):pg.transform.rotozoom(135,1.0),
-        (0,+5):pg.transform.rotozoom(180,1.0),
+        (0 ,0):pg.transform.rotozoom(pg.image.load("fig/3.png"),0,1.0),  # 動かない
+        (+5 ,0):pg.transform.rotozoom(pg.image.load("fig/3.png"),-90,1.0), # 右
+        (+5 ,-5):pg.transform.rotozoom(pg.image.load("fig/3.png"),-45,1.0), # 右上
+        (0,-5):pg.transform.rotozoom(pg.image.load("fig/3.png"),0,1), # 上
+        (-5,-5):pg.transform.rotozoom(pg.image.load("fig/3.png"),45,1.0), # 左上
+        (-5,0):pg.transform.rotozoom(pg.image.load("fig/3.png"),90,1.0), # 左
+        (-5,+5):pg.transform.rotozoom(pg.image.load("fig/3.png"),135,1.0), # 左下
+        (0,+5):pg.transform.rotozoom(pg.image.load("fig/3.png"),180,1.0), # 下
+        (+5,+5):pg.transform.rotozoom(pg.image.load("fig/3.png"),-135,1.0) # 右下
     }
+
+    return kk_dict
 
 
 
@@ -99,6 +111,8 @@ def main():
     tmr = 0
 
     bb_imags,bb_accs = init_bb_imgs()
+
+    kk_img_dict = get_kk_imgs()
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
@@ -143,6 +157,8 @@ def main():
         if not tate:
             vy *= -1
         bb_rct.move_ip(vx,vy)
+        sum_mv_tuple = tuple(sum_mv)
+        kk_img = kk_img_dict.get(sum_mv_tuple,kk_img_dict[(0,0)])
         screen.blit(bb_img, bb_rct)
         pg.display.update()
         tmr += 1
